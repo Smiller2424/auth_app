@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "731400089356",
+    "project_id": "authen-app-13",
+    "storage_bucket": "authen-app-13.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:731400089356:android:4044686a559d538f63a329",
+        "android_client_info": {
+          "package_name": "com.example.auth_app13"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA96LMo4k5DIeAaFfIt0hSbNNadqAhzqZA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
