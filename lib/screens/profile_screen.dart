@@ -2,13 +2,19 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'auth_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final auth = AuthService();
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
 
+class _ProfileScreenState extends State<ProfileScreen> {
+  final auth = AuthService();
+  final newPasswordController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Profile"),
@@ -17,7 +23,7 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Show logged-in user email
+            // EMAIL
             Text(
               "Email: ${auth.currentUser?.email}",
               style: const TextStyle(fontSize: 18),
@@ -25,7 +31,47 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Logout button
+            // PASSWORD FIELD (FIXED WIDTH)
+            SizedBox(
+              width: 250,
+              child: TextField(
+                controller: newPasswordController,
+                decoration: const InputDecoration(
+                  labelText: "New Password",
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            // CHANGE PASSWORD
+            ElevatedButton(
+              onPressed: () async {
+                String newPassword = newPasswordController.text;
+
+                if (newPassword.length < 6) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Password must be 6+ chars")),
+                  );
+                  return;
+                }
+
+                await auth.changePassword(newPassword);
+
+                if (!context.mounted) return;
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Password Updated")),
+                );
+              },
+              child: const Text("Change Password"),
+            ),
+
+            const SizedBox(height: 10),
+
+            // LOGOUT
             ElevatedButton(
               onPressed: () async {
                 await auth.signOut();
@@ -40,22 +86,6 @@ class ProfileScreen extends StatelessWidget {
                 );
               },
               child: const Text("Logout"),
-            ),
-
-            const SizedBox(height: 10),
-
-            // Change password button
-            ElevatedButton(
-              onPressed: () async {
-                await auth.changePassword("newpassword123");
-
-                if (!context.mounted) return;
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Password Updated")),
-                );
-              },
-              child: const Text("Change Password"),
             ),
           ],
         ),
