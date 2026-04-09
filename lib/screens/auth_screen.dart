@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
+import 'profile_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -24,17 +26,18 @@ class _AuthScreenState extends State<AuthScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
               controller: emailController,
               decoration: const InputDecoration(labelText: "Email"),
             ),
+            const SizedBox(height: 10),
             TextField(
               controller: passwordController,
               decoration: const InputDecoration(labelText: "Password"),
               obscureText: true,
             ),
-
             const SizedBox(height: 20),
 
             ElevatedButton(
@@ -42,8 +45,9 @@ class _AuthScreenState extends State<AuthScreen> {
                 String email = emailController.text;
                 String password = passwordController.text;
 
-                // ✅ validation (required)
+                // VALIDATION
                 if (!email.contains('@')) {
+                  if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Invalid email")),
                   );
@@ -51,6 +55,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 }
 
                 if (password.length < 6) {
+                  if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Password must be 6+ chars")),
                   );
@@ -58,16 +63,31 @@ class _AuthScreenState extends State<AuthScreen> {
                 }
 
                 try {
+                  User? user;
+
                   if (isLogin) {
-                    await auth.signIn(email, password);
+                    user = await auth.signIn(email, password);
                   } else {
-                    await auth.register(email, password);
+                    user = await auth.register(email, password);
                   }
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Success")),
-                  );
+                  if (user != null) {
+                    if (!mounted) return;
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileScreen(),
+                      ),
+                    );
+                  } else {
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Authentication failed")),
+                    );
+                  }
                 } catch (e) {
+                  if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(e.toString())),
                   );
@@ -75,6 +95,8 @@ class _AuthScreenState extends State<AuthScreen> {
               },
               child: Text(isLogin ? "Login" : "Register"),
             ),
+
+            const SizedBox(height: 10),
 
             TextButton(
               onPressed: () {
@@ -87,7 +109,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     ? "Don't have an account? Register"
                     : "Already have an account? Login",
               ),
-            )
+            ),
           ],
         ),
       ),
